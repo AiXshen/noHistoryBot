@@ -1,0 +1,594 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LexDraft — Legal Document Generator</title>
+
+<style>
+:root {
+    --bg: #0b1120;
+    --panel: #121c2e;
+    --border: #26344a;
+    --gold: #d6b36a;
+    --text: #edf2f7;
+    --muted: #94a3b8;
+    --input: #0c1525;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, Arial, sans-serif;
+    min-height: 100vh;
+}
+
+header {
+    height: 76px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 7%;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.logo span {
+    color: var(--gold);
+}
+
+.badge {
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.hero {
+    text-align: center;
+    padding: 55px 20px 38px;
+}
+
+.eyebrow {
+    color: var(--gold);
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 18px;
+}
+
+h1 {
+    font-size: clamp(32px, 5vw, 49px);
+    letter-spacing: -1.5px;
+    line-height: 1.15;
+}
+
+.hero p {
+    color: var(--muted);
+    margin-top: 15px;
+    line-height: 1.7;
+}
+
+.container {
+    max-width: 1250px;
+    margin: 0 auto 60px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 390px 1fr;
+    gap: 24px;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 25px;
+    min-width: 0;
+}
+
+.panel h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 19px 0 9px;
+}
+
+input, select, textarea {
+    width: 100%;
+    background: var(--input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 12px 13px;
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.6;
+}
+
+input::placeholder, textarea::placeholder {
+    color: #66758b;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.primary {
+    width: 100%;
+    margin-top: 23px;
+    padding: 14px;
+    color: #101827;
+    background: var(--gold);
+}
+
+.primary:hover {
+    background: #edcd88;
+    transform: translateY(-1px);
+}
+
+.primary:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+}
+
+.output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.output-header h2 {
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.secondary {
+    padding: 9px 12px;
+    background: #202d42;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+}
+
+.secondary:hover {
+    border-color: var(--gold);
+}
+
+#result {
+    min-height: 540px;
+    max-height: 750px;
+    overflow-y: auto;
+    padding: 24px;
+    border: 1px solid var(--border);
+    background: #0d1626;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+.placeholder {
+    min-height: 490px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--muted);
+    gap: 12px;
+    font-family: Inter, Arial, sans-serif;
+}
+
+.placeholder .icon {
+    font-size: 42px;
+}
+
+.status {
+    margin-top: 13px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.error {
+    color: #fca5a5;
+}
+
+.privacy {
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 8px;
+    background: #0c1525;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.privacy strong {
+    color: var(--gold);
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+@media(max-width: 850px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+
+    #result {
+        min-height: 400px;
+    }
+
+    header {
+        padding: 0 5%;
+    }
+
+    .hero {
+        padding-top: 40px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Lex<span>Draft</span></div>
+    <div class="badge">AI LEGAL DOCUMENT ASSISTANT</div>
+</header>
+
+<section class="hero">
+    <div class="eyebrow">Intelligent Legal Drafting</div>
+    <h1>Legal documents, <span style="color:#d6b36a">simplified.</span></h1>
+    <p>
+        Generate structured legal document drafts from your requirements.<br>
+        Describe your situation, configure your document, and get started.
+    </p>
+</section>
+
+<main class="container">
+
+<section class="panel">
+    <h2>Create a document</h2>
+    <p class="subtitle">
+        Provide the details required to prepare your document draft.
+    </p>
+
+    <form id="documentForm">
+
+        <label for="apiKey">Groq API Key</label>
+        <input
+            id="apiKey"
+            type="password"
+            placeholder="Enter your Groq API key"
+            autocomplete="off"
+            required
+        >
+
+        <label for="docType">Document type</label>
+        <select id="docType">
+            <option>Rental Agreement</option>
+            <option>Non-Disclosure Agreement (NDA)</option>
+            <option>Employment Agreement</option>
+            <option>Service Agreement</option>
+            <option>Legal Notice</option>
+            <option>Affidavit Draft</option>
+            <option>Partnership Agreement</option>
+            <option>Business Contract</option>
+            <option>Privacy Policy</option>
+            <option>Terms and Conditions</option>
+            <option>Custom Legal Document</option>
+        </select>
+
+        <label for="jurisdiction">Country / jurisdiction</label>
+        <select id="jurisdiction">
+            <option value="India">India</option>
+            <option value="United States">United States</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="Other">Other / specify in requirements</option>
+        </select>
+
+        <label for="parties">Parties involved</label>
+        <input
+            id="parties"
+            placeholder="e.g. Landlord: ABC, Tenant: XYZ"
+        >
+
+        <label for="details">Document requirements</label>
+        <textarea
+            id="details"
+            placeholder="Describe the purpose, important terms, dates, payment amounts, responsibilities, conditions, and other relevant details..."
+            required
+        ></textarea>
+
+        <label for="tone">Drafting style</label>
+        <select id="tone">
+            <option>Formal and professional</option>
+            <option>Simple and easy to understand</option>
+            <option>Detailed and comprehensive</option>
+        </select>
+
+        <button class="primary" id="generateBtn" type="submit">
+            ✦ Generate Legal Draft
+        </button>
+    </form>
+
+    <div class="privacy">
+        <strong>Privacy notice</strong><br>
+        This page does not implement document history or save generated
+        drafts to browser storage. However, information is transmitted to
+        Groq for processing. Clearing the page does not erase information
+        already transmitted to the API. Avoid entering sensitive personal
+        or confidential information.
+    </div>
+</section>
+
+<section class="panel">
+    <div class="output-header">
+        <h2>Your document</h2>
+        <div class="actions">
+            <button class="secondary" id="copyBtn" type="button">
+                Copy
+            </button>
+            <button class="secondary" id="downloadBtn" type="button">
+                Download .txt
+            </button>
+            <button class="secondary" id="clearBtn" type="button">
+                Clear
+            </button>
+        </div>
+    </div>
+
+    <div id="result"><div class="placeholder">
+        <div class="icon">⚖️</div>
+        <h3>Your draft will appear here</h3>
+        <p>Complete the form and generate your first document.</p>
+    </div></div>
+
+    <div id="status" class="status">
+        Ready to generate a document.
+    </div>
+</section>
+
+</main>
+
+<footer>
+    LexDraft · AI-assisted legal drafting<br>
+    Generated documents are drafts for review, not legal advice.
+    Have important documents reviewed by a qualified lawyer.
+</footer>
+
+<script>
+const form = document.getElementById("documentForm");
+const result = document.getElementById("result");
+const statusText = document.getElementById("status");
+const generateBtn = document.getElementById("generateBtn");
+
+let currentDocument = "";
+
+form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const apiKey = document.getElementById("apiKey").value.trim();
+    const docType = document.getElementById("docType").value;
+    const jurisdiction = document.getElementById("jurisdiction").value;
+    const parties = document.getElementById("parties").value.trim();
+    const details = document.getElementById("details").value.trim();
+    const tone = document.getElementById("tone").value;
+
+    if (!apiKey || !details) {
+        statusText.textContent = "Please enter your API key and requirements.";
+        statusText.className = "status error";
+        return;
+    }
+
+    generateBtn.disabled = true;
+    generateBtn.textContent = "Generating document...";
+    statusText.className = "status";
+    statusText.textContent = "Connecting to Groq AI...";
+    result.textContent = "Preparing your legal document draft...";
+    currentDocument = "";
+
+    const systemPrompt = `
+You are a legal document drafting assistant.
+
+Prepare a clear, structured draft based on the user's requirements.
+
+Rules:
+1. The selected jurisdiction is ${jurisdiction}.
+2. The requested document is ${docType}.
+3. Drafting style: ${tone}.
+4. Parties: ${parties || "Not specified"}.
+5. Use a suitable title, sections, clauses, and signature blocks where appropriate.
+6. Do not invent facts, party details, dates, laws, statutory citations,
+   legal rights, or guarantees.
+7. If essential information is missing, use clearly labelled placeholders
+   such as [INSERT DATE] or identify the missing information.
+8. Do not claim the draft is legally valid, enforceable, or guaranteed
+   to comply with current law.
+9. Flag jurisdiction-specific legal requirements that need verification.
+10. If the requested document requires formal execution, registration,
+    notarisation, stamp duty, or a prescribed form, flag that for review.
+11. Do not fabricate legal citations or statutory provisions.
+12. Return the document draft directly, followed by a short section
+    listing important points requiring review by a qualified lawyer.
+13. This is a draft for review, not a substitute for legal advice.
+`;
+
+    try {
+        const response = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "openai/gpt-oss-120b",
+                    messages: [
+                        {
+                            role: "system",
+                            content: systemPrompt
+                        },
+                        {
+                            role: "user",
+                            content: details
+                        }
+                    ],
+                    temperature: 0.4,
+                    max_completion_tokens: 4096,
+                    top_p: 1,
+                    reasoning_effort: "medium",
+                    stream: false
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error?.message || `API request failed (${response.status})`
+            );
+        }
+
+        currentDocument =
+            data.choices?.[0]?.message?.content?.trim() || "";
+
+        if (!currentDocument) {
+            throw new Error("The API returned an empty document.");
+        }
+
+        result.textContent = currentDocument;
+        statusText.textContent =
+            "Draft generated successfully. Review it before use.";
+    } catch (error) {
+        result.textContent =
+            "Unable to generate the document. Please check your API key, " +
+            "internet connection, and API access.";
+        statusText.textContent = error.message;
+        statusText.className = "status error";
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = "✦ Generate Legal Draft";
+    }
+});
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+    if (!currentDocument) {
+        statusText.textContent = "Generate a document before copying.";
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(currentDocument);
+        statusText.textContent = "Document copied to clipboard.";
+    } catch {
+        statusText.textContent =
+            "Clipboard access failed. Try running the page through localhost.";
+        statusText.className = "status error";
+    }
+});
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+    if (!currentDocument) {
+        statusText.textContent = "Generate a document before downloading.";
+        return;
+    }
+
+    const blob = new Blob(
+        [currentDocument],
+        { type: "text/plain;charset=utf-8" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "legal-document-draft.txt";
+    link.click();
+
+    URL.revokeObjectURL(url);
+    statusText.textContent = "Download initiated.";
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+    currentDocument = "";
+    result.textContent = "";
+    result.innerHTML = `
+        <div class="placeholder">
+            <div class="icon">⚖️</div>
+            <h3>Your draft will appear here</h3>
+            <p>Complete the form and generate your first document.</p>
+        </div>
+    `;
+
+    document.getElementById("details").value = "";
+    document.getElementById("parties").value = "";
+
+    statusText.textContent = "Document cleared from this page.";
+    statusText.className = "status";
+});
+</script>
+
+</body>
+</html>
